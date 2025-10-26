@@ -1,0 +1,8 @@
+pymysql
+sqlalchemy
+fastapi
+uvicorn
+dotenv
+alembic
+bcrypt
+PyJWT
