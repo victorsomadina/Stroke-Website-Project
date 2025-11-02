@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controller.auth import api
+from controller.auth import api as auth_api
+from controller.prediction import api as prediction_api
 import uvicorn
 
 app = FastAPI(title="Stroke Prediction API", version="1.0.0")
@@ -12,7 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api)
+app.include_router(auth_api)
+app.include_router(prediction_api)
 @app.get('/health')
 async def health_check():
     """Health check endpoint"""
@@ -22,6 +24,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "server:app",
         host="0.0.0.0",
-        port=8000,
+        port=8080,
         reload=True
     )

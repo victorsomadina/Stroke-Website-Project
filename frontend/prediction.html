@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stroke Risk Prediction - StrokePred</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="auth-page">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>StrokePred</span>
+            </div>
+            <div class="nav-auth">
+                <a href="index.html" class="nav-link">Home</a>
+                <span id="userName" class="nav-link"></span>
+                <button id="logoutBtn" class="btn-secondary" style="display: none;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="auth-section">
+        <div class="auth-container" style="max-width: 1400px; grid-template-columns: 1fr; width: 95%; margin: 0 auto;">
+            <div class="auth-card" style="max-width: 100%; width: 100%;">
+                <div class="auth-header">
+                    <h1>Stroke Risk Assessment</h1>
+                    <p>Fill in your health information to get your personalized stroke risk prediction</p>
+                </div>
+
+                <form class="auth-form" id="predictionForm">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="gender">Gender *</label>
+                            <div class="input-group">
+                                <i class="fas fa-venus-mars"></i>
+                                <select id="gender" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <span class="error-message" id="genderError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age">Age *</label>
+                            <div class="input-group">
+                                <i class="fas fa-birthday-cake"></i>
+                                <input type="number" id="age" name="age" min="0" max="150" required>
+                            </div>
+                            <span class="error-message" id="ageError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hypertension">Hypertension *</label>
+                            <div class="input-group">
+                                <i class="fas fa-heartbeat"></i>
+                                <select id="hypertension" name="hypertension" required>
+                                    <option value="">Select</option>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                            <span class="error-message" id="hypertensionError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="heart_disease">Heart Disease *</label>
+                            <div class="input-group">
+                                <i class="fas fa-heart"></i>
+                                <select id="heart_disease" name="heart_disease" required>
+                                    <option value="">Select</option>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                            <span class="error-message" id="heart_diseaseError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ever_married">Ever Married *</label>
+                            <div class="input-group">
+                                <i class="fas fa-ring"></i>
+                                <select id="ever_married" name="ever_married" required>
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <span class="error-message" id="ever_marriedError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="work_type">Work Type *</label>
+                            <div class="input-group">
+                                <i class="fas fa-briefcase"></i>
+                                <select id="work_type" name="work_type" required>
+                                    <option value="">Select Work Type</option>
+                                    <option value="Private">Private</option>
+                                    <option value="Self-employed">Self-employed</option>
+                                    <option value="Govt_job">Government Job</option>
+                                    <option value="children">Children</option>
+                                    <option value="Never_worked">Never Worked</option>
+                                </select>
+                            </div>
+                            <span class="error-message" id="work_typeError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Residence_type">Residence Type *</label>
+                            <div class="input-group">
+                                <i class="fas fa-home"></i>
+                                <select id="Residence_type" name="Residence_type" required>
+                                    <option value="">Select</option>
+                                    <option value="Urban">Urban</option>
+                                    <option value="Rural">Rural</option>
+                                </select>
+                            </div>
+                            <span class="error-message" id="Residence_typeError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="avg_glucose_level">Average Glucose Level *</label>
+                            <div class="input-group">
+                                <i class="fas fa-tint"></i>
+                                <input type="number" id="avg_glucose_level" name="avg_glucose_level" step="0.01" min="0" required>
+                            </div>
+                            <span class="error-message" id="avg_glucose_levelError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bmi">BMI (Body Mass Index)</label>
+                            <div class="input-group">
+                                <i class="fas fa-weight"></i>
+                                <input type="number" id="bmi" name="bmi" step="0.1" min="0" max="100">
+                            </div>
+                            <span class="error-message" id="bmiError"></span>
+                            <small style="color: #64748b; font-size: 0.875rem;">Optional - Leave blank if unknown</small>
+                        </div>
+
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="smoking_status">Smoking Status *</label>
+                            <div class="input-group">
+                                <i class="fas fa-smoking"></i>
+                                <select id="smoking_status" name="smoking_status" required>
+                                    <option value="">Select</option>
+                                    <option value="never smoked">Never Smoked</option>
+                                    <option value="formerly smoked">Formerly Smoked</option>
+                                    <option value="smokes">Currently Smokes</option>
+                                    <option value="Unknown">Unknown</option>
+                                </select>
+                            </div>
+                            <span class="error-message" id="smoking_statusError"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary btn-large btn-full">
+                        <i class="fas fa-chart-line"></i>
+                        Get Risk Assessment
+                    </button>
+                </form>
+
+                <div id="predictionResult" style="display: none; margin-top: 2rem; padding: 2rem; border-radius: 0.5rem; background: #f8fafc; width: 70%; min-width: 500px; margin-left: auto; margin-right: auto;">
+                    <h3 style="margin-bottom: 1.5rem; color: #1e293b; font-size: 1.5rem; text-align: center;">Prediction Results</h3>
+                    <div id="resultContent"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Analyzing your risk...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="prediction.js"></script>
+</body>
+</html>
+

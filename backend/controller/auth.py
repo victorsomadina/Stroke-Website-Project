@@ -5,6 +5,12 @@ from sqlalchemy import text
 import bcrypt
 import re
 from typing import Optional
+import jwt
+import os
+from dotenv import load_dotenv
+from datetime import datetime, timedelta
+
+load_dotenv()
 
 api = APIRouter(prefix='/auth', tags=['authentication'])
 
@@ -12,6 +18,7 @@ class SignupRequest(BaseModel):
     firstName: str
     lastName: str
     email: EmailStr
+    role: str
     phone: Optional[str] = None
     password: str
     confirmPassword: str
@@ -57,6 +64,10 @@ async def signup(request: SignupRequest):
         last_name = request.lastName.strip()
         email = request.email.strip()
         password = request.password
+        role = request.role
+        dob = request.dateOfBirth
+        gender = request.gender
+        phone = request.phone
         
         if password != request.confirmPassword:
             raise HTTPException(
@@ -78,15 +89,25 @@ async def signup(request: SignupRequest):
         
         full_name = f"{first_name} {last_name}"
         
+        if role not in ['patient', 'doctor']:
+            raise HTTPException(
+                status_code=400,
+                detail="Role must be either 'patient' or 'doctor'"
+            )
+        
         insert_user_query = text("""
-            INSERT INTO users (name, email, password)
-            VALUES (:name, :email, :password)
+            INSERT INTO users (name, email, password, role, phoneNumber, DOB, gender)
+            VALUES (:name, :email, :password, :role, :phoneNumber, :DOB, :gender)
         """)
         
         db.execute(insert_user_query, {
             'name': full_name,
             'email': email,
-            'password': hashed_password
+            'password': hashed_password,
+            'role': role,
+            'phoneNumber': phone,
+            'DOB': dob,
+            'gender': gender
         })
         db.commit()
         
@@ -133,10 +154,26 @@ async def signin(request: SigninRequest):
                 detail='Invalid email or password'
             )
         
+        expiry = datetime.now() + timedelta(minutes=int(os.getenv("expiry_time", 1440)))
+        details = {
+            "id": user.id,
+            "email": user.email,
+            "role": user.role,
+            "exp": expiry
+        }
+        
+        secret_key = os.getenv("secret_key")
+        if not secret_key:
+            raise HTTPException(status_code=500, detail="Server configuration error: secret_key not found")
+        
+        token = jwt.encode(details, secret_key, algorithm="HS256")
+        
         user_dict = {
             'id': user.id,
             'name': user.name,
-            'email': user.email
+            'email': user.email,
+            'role': user.role,
+            "token": token
         }
         
         return {

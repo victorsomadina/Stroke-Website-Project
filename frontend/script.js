@@ -313,10 +313,11 @@ async function handleSignup(e) {
             password: document.getElementById('password').value,
             confirmPassword: document.getElementById('confirmPassword').value,
             dateOfBirth: document.getElementById('dateOfBirth').value,
-            gender: document.getElementById('gender').value
+            gender: document.getElementById('gender').value,
+            role: document.getElementById('role').value
         };
         
-        const response = await fetch('http://localhost:8000/auth/signup', {
+        const response = await fetch('http://localhost:8080/auth/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -372,7 +373,7 @@ async function handleSignin(e) {
             password: document.getElementById('password').value
         };
         
-        const response = await fetch('http://localhost:8000/auth/signin', {
+        const response = await fetch('http://localhost:8080/auth/signin', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -390,7 +391,7 @@ async function handleSignin(e) {
             showNotification('Sign in successful! Redirecting...', 'success');
             
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'prediction.html';
             }, 1000);
         } else {
             // Handle error cases

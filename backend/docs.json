@@ -1,0 +1,461 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Stroke Prediction API",
+    "description": "API for stroke prediction application with user authentication endpoints",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@strokepred.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.strokepred.com",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "authentication",
+      "description": "User authentication and registration endpoints"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Returns the health status of the API server",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "healthy",
+                  "message": "Server is running"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "summary": "User Registration",
+        "description": "Register a new user account with email and password",
+        "operationId": "signup",
+        "tags": ["authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              },
+              "examples": {
+                "example1": {
+                  "summary": "Standard user registration",
+                  "value": {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "email": "john.doe@example.com",
+                    "phone": "+1-555-123-4567",
+                    "password": "SecurePass123",
+                    "confirmPassword": "SecurePass123",
+                    "dateOfBirth": "1990-01-15",
+                    "gender": "male"
+                  }
+                },
+                "example2": {
+                  "summary": "Minimal registration",
+                  "value": {
+                    "firstName": "Jane",
+                    "lastName": "Smith",
+                    "email": "jane.smith@example.com",
+                    "phone": "",
+                    "password": "SecurePass123",
+                    "confirmPassword": "SecurePass123",
+                    "dateOfBirth": "",
+                    "gender": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Account created successfully",
+                  "data": {
+                    "name": "John Doe",
+                    "email": "john.doe@example.com"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or passwords do not match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "passwordsMismatch": {
+                    "summary": "Passwords do not match",
+                    "value": {
+                      "detail": "Passwords do not match"
+                    }
+                  },
+                  "weakPassword": {
+                    "summary": "Weak password",
+                    "value": {
+                      "detail": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "User already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "User with this email already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "An error occurred during registration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signin": {
+      "post": {
+        "summary": "User Authentication",
+        "description": "Authenticate an existing user with email and password",
+        "operationId": "signin",
+        "tags": ["authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SigninRequest"
+              },
+              "examples": {
+                "example1": {
+                  "summary": "Standard sign in",
+                  "value": {
+                    "email": "john.doe@example.com",
+                    "password": "SecurePass123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sign in successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SigninResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Sign in successful",
+                  "data": {
+                    "id": 1,
+                    "name": "John Doe",
+                    "email": "john.doe@example.com"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error - missing or invalid email/password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingEmail": {
+                    "summary": "Email is required",
+                    "value": {
+                      "detail": "Email is required"
+                    }
+                  },
+                  "invalidEmail": {
+                    "summary": "Invalid email format",
+                    "value": {
+                      "detail": "Please enter a valid email address"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Invalid email or password"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "An error occurred during authentication"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SignupRequest": {
+        "type": "object",
+        "required": [
+          "firstName",
+          "lastName",
+          "email",
+          "password",
+          "confirmPassword"
+        ],
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "User's first name",
+            "minLength": 1,
+            "maxLength": 50,
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User's last name",
+            "minLength": 1,
+            "maxLength": 50,
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address (must be unique)",
+            "example": "john.doe@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "User's phone number (optional)",
+            "example": "+1-555-123-4567"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password (must be at least 8 characters with uppercase, lowercase, and number)",
+            "minLength": 8,
+            "example": "SecurePass123"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "description": "Password confirmation (must match password)",
+            "example": "SecurePass123"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "description": "User's date of birth (optional)",
+            "example": "1990-01-15"
+          },
+          "gender": {
+            "type": "string",
+            "description": "User's gender (optional)",
+            "enum": ["male", "female", "other", "prefer-not-to-say"],
+            "example": "male"
+          }
+        }
+      },
+      "SigninRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password",
+            "example": "SecurePass123"
+          }
+        }
+      },
+      "SignupResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates if the operation was successful",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Account created successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "User data",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "User's full name",
+                "example": "John Doe"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "User's email address",
+                "example": "john.doe@example.com"
+              }
+            }
+          }
+        }
+      },
+      "SigninResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates if the operation was successful",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Sign in successful"
+          },
+          "data": {
+            "type": "object",
+            "description": "User data including id",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "description": "User's unique identifier",
+                "example": 1
+              },
+              "name": {
+                "type": "string",
+                "description": "User's full name",
+                "example": "John Doe"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "User's email address",
+                "example": "john.doe@example.com"
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid email or password"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique user identifier",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "User's full name",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "example": "john.doe@example.com"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Account creation timestamp"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Account update timestamp"
+          }
+        }
+      }
+    }
+  },
+  "security": []
+}
+
+

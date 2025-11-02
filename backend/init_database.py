@@ -28,5 +28,4 @@ def init_database():
         return False
 
 if __name__ == "__main__":
-    print("Initializing database...")
     init_database()

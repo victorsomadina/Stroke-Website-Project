@@ -6,3 +6,8 @@ dotenv
 alembic
 bcrypt
 PyJWT
+pandas
+numpy
+scikit-learn
+matplotlib
+imbalanced-learn
