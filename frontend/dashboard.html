@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - StrokePred</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body style="margin: 0; padding: 0; min-height: 100vh; background: #f1f5f9;">
+    <nav class="navbar" style="position: sticky; top: 0; z-index: 1000; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>StrokePred</span>
+            </div>
+            <div class="nav-auth">
+                <a href="index.html" class="nav-link">Home</a>
+                <span id="userName" class="nav-link"></span>
+                <button id="logoutBtn" class="btn-secondary" style="display: none;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div style="width: 100%; min-height: calc(100vh - 70px); padding: 2rem; box-sizing: border-box;">
+        <div style="max-width: 100%; width: 100%;">
+                <div style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0;">
+                    <h1 style="margin: 0 0 0.5rem 0; color: #1e293b; font-size: 2.5rem;">Doctor Dashboard</h1>
+                    <p style="margin: 0; color: #64748b; font-size: 1.1rem;">View all patients and their stroke risk predictions</p>
+                </div>
+
+                <div id="statsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+
+                <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <label for="searchInput" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #1e293b;">Search Patients:</label>
+                        <div class="input-group" style="max-width: 400px;">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search by name, email, or risk level..." style="width: 100%;">
+                        </div>
+                    </div>
+                    <button id="refreshBtn" class="btn-primary" style="margin-top: 1.5rem;">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                </div>
+
+                <div id="loadingIndicator" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: #3b82f6;"></i>
+                    <p style="margin-top: 1rem; color: #64748b;">Loading patient data...</p>
+                </div>
+
+                <div id="patientsTable" style="display: none;">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <thead>
+                                <tr style="background: #f1f5f9; border-bottom: 2px solid #e2e8f0;">
+                                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Patient Name</th>
+                                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Email</th>
+                                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Age</th>
+                                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Risk Level</th>
+                                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Probability</th>
+                                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Date</th>
+                                    <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e293b;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientsTableBody">
+                                <!-- Table rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="noDataMessage" style="display: none; text-align: center; padding: 3rem; background: #f1f5f9; border-radius: 0.5rem;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; color: #94a3b8; margin-bottom: 1rem;"></i>
+                    <p style="color: #64748b; font-size: 1.1rem;">No patient data available</p>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div id="paginationContainer" style="display: none; margin-top: 2rem; padding: 1.5rem; background: white; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div style="color: #64748b; font-size: 0.95rem;">
+                            Showing <span id="showingFrom">0</span> - <span id="showingTo">0</span> of <span id="totalItems">0</span> predictions
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button id="prevPageBtn" class="btn-secondary" style="padding: 0.5rem 1rem;" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <div style="padding: 0.5rem 1rem; background: #f1f5f9; border-radius: 0.25rem; color: #1e293b; font-weight: 600;">
+                                Page <span id="currentPageNum">1</span> of <span id="totalPagesNum">1</span>
+                            </div>
+                            <button id="nextPageBtn" class="btn-secondary" style="padding: 0.5rem 1rem;" disabled>
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Details Modal -->
+    <div class="modal" id="patientDetailsModal">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 id="modalPatientName">Patient Details</h2>
+                <button class="modal-close" onclick="closePatientModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalPatientDetails">
+                <!-- Patient details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script src="script.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
+

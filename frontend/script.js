@@ -317,23 +317,18 @@ async function handleSignup(e) {
             role: document.getElementById('role').value
         };
         
-        const response = await fetch('http://localhost:8080/auth/signup', {
+        const response = await apiCall(getApiUrl(API_CONFIG.ENDPOINTS.AUTH.SIGNUP), {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(signupData)
         });
         
-        const result = await response.json();
-        
         hideLoading();
         
-        if (result.success) {
+        if (response.success && response.data.success) {
             showSuccessModal();
             form.reset();
         } else {
-            const errorMsg = Array.isArray(result.detail) ? result.detail.join(', ') : result.detail || result.message || 'An error occurred';
+            const errorMsg = response.error || (response.data?.detail || response.data?.message || 'An error occurred');
             showNotification(errorMsg, 'error');
         }
         
@@ -373,29 +368,30 @@ async function handleSignin(e) {
             password: document.getElementById('password').value
         };
         
-        const response = await fetch('http://localhost:8080/auth/signin', {
+        const response = await apiCall(getApiUrl(API_CONFIG.ENDPOINTS.AUTH.SIGNIN), {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(signinData)
         });
         
-        const result = await response.json();
-        
         hideLoading();
         
-        if (result.success) {
+        if (response.success && response.data.success) {
             // Store user data in localStorage
-            localStorage.setItem('user', JSON.stringify(result.data));
+            localStorage.setItem('user', JSON.stringify(response.data.data));
             showNotification('Sign in successful! Redirecting...', 'success');
             
+            // Redirect based on user role
+            const userRole = response.data.data?.role;
             setTimeout(() => {
-                window.location.href = 'prediction.html';
+                if (userRole === 'doctor') {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    window.location.href = 'prediction.html';
+                }
             }, 1000);
         } else {
             // Handle error cases
-            const errorMsg = Array.isArray(result.detail) ? result.detail.join(', ') : result.detail || result.message || 'Invalid credentials. Please try again.';
+            const errorMsg = response.error || (response.data?.detail || response.data?.message || 'Invalid credentials. Please try again.');
             showNotification(errorMsg, 'error');
         }
         

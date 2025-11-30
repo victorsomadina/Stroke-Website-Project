@@ -191,9 +191,8 @@ async function handlePrediction(e) {
             predictionData.bmi = parseFloat(bmiValue);
         }
         
-        // Get JWT token from localStorage
-        const user = localStorage.getItem('user');
-        if (!user) {
+        // Check authentication
+        if (!isAuthenticated()) {
             showNotification('Please sign in to make predictions', 'error');
             setTimeout(() => {
                 window.location.href = 'signin.html';
@@ -201,45 +200,18 @@ async function handlePrediction(e) {
             return;
         }
         
-        const userData = JSON.parse(user);
-        const token = userData.token || userData.data?.token;
-        
-        if (!token) {
-            showNotification('Authentication token not found. Please sign in again.', 'error');
-            setTimeout(() => {
-                window.location.href = 'signin.html';
-            }, 1500);
-            return;
-        }
-        
-        const response = await fetch('http://localhost:8080/prediction/predict', {
+        const response = await apiCall(getApiUrl(API_CONFIG.ENDPOINTS.PREDICTION.PREDICT), {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify(predictionData)
         });
         
-        const result = await response.json();
-        
         hideLoading();
         
-        // Handle 401 Unauthorized - token expired or invalid
-        if (response.status === 401) {
-            showNotification('Your session has expired. Please sign in again.', 'error');
-            localStorage.removeItem('user');
-            setTimeout(() => {
-                window.location.href = 'signin.html';
-            }, 2000);
-            return;
-        }
-        
-        if (result.success) {
-            displayPredictionResult(result);
+        if (response.success && response.data.success) {
+            displayPredictionResult(response.data);
             document.getElementById('predictionResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
-            const errorMsg = result.detail || result.message || 'An error occurred during prediction';
+            const errorMsg = response.error || (response.data?.detail || response.data?.message || 'An error occurred during prediction');
             showNotification(errorMsg, 'error');
         }
         

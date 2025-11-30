@@ -7,6 +7,7 @@ import os
 import pickle
 from .preprocess import preprocess_data
 from .jwt_auth import verify_token
+from .stroke_data_service import save_stroke_prediction
 
 api = APIRouter(prefix='/prediction', tags=['prediction'])
 
@@ -81,6 +82,34 @@ async def predict_stroke( request: StrokePredictionRequest, token_payload: dict 
         else:
             risk_level = "High"
             message = "High risk of stroke. Please consult with a healthcare professional."
+        
+        try:
+            user_id = token_payload.get("id")
+            user_email = token_payload.get("email", "")
+            
+            input_data = {
+                "gender": request.gender,
+                "age": request.age,
+                "hypertension": request.hypertension,
+                "heart_disease": request.heart_disease,
+                "ever_married": request.ever_married,
+                "work_type": request.work_type,
+                "Residence_type": request.Residence_type,
+                "avg_glucose_level": request.avg_glucose_level,
+                "bmi": request.bmi,
+                "smoking_status": request.smoking_status
+            }
+            
+            save_stroke_prediction(
+                user_id=user_id,
+                user_email=user_email,
+                input_data=input_data,
+                prediction=int(prediction),
+                probability=float(probability),
+                risk_level=risk_level
+            )
+        except Exception as e:
+            print(f"Warning: Failed to save stroke prediction to MongoDB: {str(e)}")
         
         return {
             'success': True,

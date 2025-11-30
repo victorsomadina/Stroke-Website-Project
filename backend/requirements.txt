@@ -11,3 +11,6 @@ numpy
 scikit-learn
 matplotlib
 imbalanced-learn
+pymongo>=4.6.0
+dnspython>=2.4.0
+fastapi
