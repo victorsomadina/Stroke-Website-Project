@@ -47,3 +47,4 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
             detail=f"Token verification failed: {str(e)}"
         )
 
+

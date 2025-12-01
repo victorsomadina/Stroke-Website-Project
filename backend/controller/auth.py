@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr, field_validator
-from database.connection import db, Session
+from database.mySql_connection import db, Session
 from sqlalchemy import text
 import bcrypt
 import re
@@ -60,21 +60,23 @@ def is_valid_email(email):
 async def signup(request: SignupRequest):
     """User registration endpoint"""
     try:
-        first_name = request.firstName.strip()
+        first_name = request.firstName.strip()   
         last_name = request.lastName.strip()
         email = request.email.strip()
         password = request.password
         role = request.role
-        dob = request.dateOfBirth
-        gender = request.gender
-        phone = request.phone
+        dob = request.dateOfBirth.strip()
+        gender = request.gender.strip()
+        phone = request.phone.strip()
         
+        # logic one: check confirm equals password
         if password != request.confirmPassword:
             raise HTTPException(
                 status_code=400,
                 detail="Passwords do not match"
-            )
+        )
         
+        #logic two: check that a user already exists in the database
         check_user_query = text("SELECT * FROM users WHERE email = :email")
         existing_user = db.execute(check_user_query, {'email': email}).fetchone()
         
@@ -84,17 +86,22 @@ async def signup(request: SignupRequest):
                 detail="User with this email already exists"
             )
         
+        # logic three: Basically to insert the values into the database
+        # logic 3A
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
         
+        # logic 3B
         full_name = f"{first_name} {last_name}"
         
+        # logic 3c
         if role not in ['patient', 'doctor']:
             raise HTTPException(
                 status_code=400,
                 detail="Role must be either 'patient' or 'doctor'"
-            )
+        )
         
+        # logic 3d
         insert_user_query = text("""
             INSERT INTO users (name, email, password, role, phoneNumber, DOB, gender)
             VALUES (:name, :email, :password, :role, :phoneNumber, :DOB, :gender)

@@ -28,7 +28,6 @@ ADD COLUMN role ENUM('doctor', 'patient') DEFAULT 'patient';
     )
     pass
 
-
 def downgrade() -> None:
     """Downgrade schema."""
     op.execute("""

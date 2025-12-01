@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from .jwt_auth import verify_token
 from .stroke_data_service import get_all_stroke_predictions
-from database.connection import db
+from database.mySql_connection import db
 from sqlalchemy import text
 
 api = APIRouter(prefix='/dashboard', tags=['dashboard'])
